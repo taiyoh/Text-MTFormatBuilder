@@ -17,7 +17,6 @@ no_index:
   directory:
     - inc
     - t
-    - xt
 requires:
   Filter::Util::Call: 0
 resources:
