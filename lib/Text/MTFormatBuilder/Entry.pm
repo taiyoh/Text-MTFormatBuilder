@@ -63,11 +63,15 @@ sub export {
     my $text = '';
     $text .= $self->metadata->export;
     $text .= join "", grep { $_ } map {
-        return '' unless $self->$_;
-        (my $u = $_) =~ s{_}{ }g;
-        $u = uc $u;
-        "${u}:\n" . $self->$_ . "\n"
-            . $self->delimiter;
+        if ($self->$_) {
+            (my $u = $_) =~ s{_}{ }g;
+            $u = uc $u;
+            "${u}:\n" . $self->$_ . "\n"
+                . $self->delimiter;
+        }
+        else {
+            '';
+        }
     } @keys;
     $text .= join '', $self->map_comments(sub { $_->export });
     $text .= join '', $self->map_pings(sub { $_->export });
