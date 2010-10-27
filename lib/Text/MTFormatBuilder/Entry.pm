@@ -19,7 +19,7 @@ has metadata => (
     isa  => 'Text::MTFormatBuilder::MetaData',
     handles => [qw/author title date primary_category
                    allow_comments allow_pings convert_breaks
-                   append_category
+                   append_category status
                   /],
 );
 

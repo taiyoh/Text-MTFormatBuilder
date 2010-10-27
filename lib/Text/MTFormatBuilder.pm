@@ -15,7 +15,8 @@ sub import {
     *{"${caller}::transaction"} = \&do_transaction;
     *{"${caller}::${_}"} = sub(&) { warn "DUMMY: $_"; } for (qw/metadata ping comment entry/);
     my @keys = qw/title url ip blog_name date body extended_body
-                  excerpt author email primary_category convert_breaks status allow_comments allow_pings content/;
+                  excerpt author email primary_category category
+                  convert_breaks status allow_comments allow_pings content/;
     for my $p (@keys) {
         *{"${caller}::${p}"} = sub($) { warn "DUMMY: $p"; };
     }
@@ -38,12 +39,7 @@ sub append_entry {
 sub map_entries {
     my $self  = shift;
     my $block = shift;
-    my @list;
-    for my $entry (@{ $self->{entries} }) {
-        local $_ = $entry;
-        push @list, $block->();
-    }
-    return @list;
+    return map { $block->() } @{ $self->{entries} };
 }
 
 do {
@@ -69,43 +65,41 @@ do {
             no strict 'refs';
             no warnings 'redefine';
 
-            local *{"${caller}::metadata"} = sub(&) {
+            *{"${caller}::metadata"} = sub(&) {
                 return unless ( caller 2 )[3] =~ /::do_entry$/;
                 my $metadata = Text::MTFormatBuilder::MetaData->new(content => 1);
-                my @keys = qw/author title date primary_category convert_breaks status allow_comments allow_pings content/;
+                my @keys = @{ $metadata->keys };
+                push @keys, 'content';
                 for my $attr (@keys) {
                     *{"${caller}::${attr}"} = sub($) { $metadata->$attr($_[0]) };
                 }
+                *{"${caller}::category"} = sub($) { $metadata->append_category($_[0]) };
                 $_[0]->();
                 $entry->metadata($metadata);
             };
-            local *{"${caller}::ping"} = sub(&) {
-                return unless ( caller 2 )[3] =~ /::do_entry$/;
-                my $ping = Text::MTFormatBuilder::Ping->new(content => 1);
-                my @keys = qw/title url ip blog_name date content/;
-                for my $attr (@keys) {
-                    *{"${caller}::${attr}"} = sub($) { $ping->$attr($_[0]) };
-                }
-                $_[0]->();
-                $entry->append_ping($ping);
-            };
-            local *{"${caller}::comment"} = sub(&) {
-                return unless ( caller 2 )[3] =~ /::do_entry$/;
-                my $comment = Text::MTFormatBuilder::Comment->new(content => 1);
-                my @keys = qw/author email url ip date content/;
-                for my $attr (@keys) {
-                    *{"${caller}::${attr}"} = sub($) { $comment->$attr($_[0]) };
-                }
-                $_[0]->();
-                $entry->append_comment($comment);
-            };
 
-            local *{"${caller}::body"}          = sub($) { $entry->body(@_) if ( caller 2 )[3] =~ /::do_entry$/; };
-            local *{"${caller}::extended_body"} = sub($) { $entry->extended_body(@_) if ( caller 2 )[3] =~ /::do_entry$/; };
-            local *{"${caller}::excerpt"}       = sub($) { $entry->excerpt(@_) if ( caller 2 )[3] =~ /::do_entry$/; };
+            for my $info (qw/Ping Comment/) {
+                my $info_lc = lc $info;
+                *{"${caller}::${info_lc}"} = sub(&) {
+                    return unless ( caller 2 )[3] =~ /::do_entry$/;
+                    my $class = "Text::MTFormatBuilder::${info}";
+                    my $obj = $class->new(content => 1);
+                    my @keys = @{ $obj->keys };
+                    push @keys, 'content';
+                    for my $attr (@keys) {
+                        *{"${caller}::${attr}"} = sub($) { $obj->$attr($_[0]) };
+                    }
+                    $_[0]->();
+                    my $append = "append_${info_lc}";
+                    $entry->$append($obj);
+                };
+            }
 
-            $block->();
+            *{"${caller}::body"}          = sub($) { $entry->body(@_) if ( caller 2 )[3] =~ /::do_entry$/; };
+            *{"${caller}::extended_body"} = sub($) { $entry->extended_body(@_) if ( caller 2 )[3] =~ /::do_entry$/; };
+            *{"${caller}::excerpt"}       = sub($) { $entry->excerpt(@_) if ( caller 2 )[3] =~ /::do_entry$/; };
         };
+        $block->();
 
         $builder->append_entry($entry);
     }
