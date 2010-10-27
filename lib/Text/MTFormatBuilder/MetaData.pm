@@ -13,21 +13,27 @@ has [@booleans] => ( is => 'rw', isa  => 'Bool', default => 1 );
 has '+convert_breaks' => default => sub { 0 };
 has '+content' => default => sub { 1 };
 
+# no_entry
+
 has category => (
-    traits     => ['Array'],
-    is         => 'ro',
+    is         => 'rw',
     isa        => 'ArrayRef[Str]',
     default    => sub { [] },
-    handles => {
-        append_category   => 'push',
-        map_categories    => 'map',
-        count_categories  => 'count',
-        has_category      => 'count',
-        has_no_categories => 'is_empty',
-    },
 );
 
-# no_entry
+sub append_category {
+    my $self = shift;
+    my $cat  = shift or die;
+    my @cats = @{ $self->category };
+    push @cats, $cat;
+    $self->category(\@cats);
+}
+
+sub map_categories {
+    my $self  = shift;
+    my $block = shift;
+    return map { $block->() } @{ $self->category };
+}
 
 sub export {
     my $self = shift;

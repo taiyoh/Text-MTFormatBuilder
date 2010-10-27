@@ -26,29 +26,13 @@ has metadata => (
 has comment => (
     is   => 'rw',
     isa  => 'ArrayRef[Text::MTFormatBuilder::Comment]',
-    traits  => ['Array'],
     default => sub { [] },
-    handles => {
-        append_comment  => 'push',
-        map_comments    => 'map',
-        count_comments  => 'count',
-        has_comment     => 'count',
-        has_no_comments => 'is_empty',
-    },
 );
 
 has ping => (
     is   => 'rw',
     isa  => 'ArrayRef[Text::MTFormatBuilder::Ping]',
-    traits  => ['Array'],
     default => sub { [] },
-    handles => {
-        append_ping  => 'push',
-        map_pings    => 'map',
-        count_pings  => 'count',
-        has_ping     => 'count',
-        has_no_pings => 'is_empty',
-    },
 );
 
 no Any::Moose;
@@ -56,6 +40,34 @@ no Any::Moose;
 sub BUILD {
     my $self = shift;
     $self->metadata(Text::MTFormatBuilder::MetaData->new);
+}
+
+sub append_comment {
+    my $self = shift;
+    my $c  = shift or die;
+    my @cs = @{ $self->comment };
+    push @cs, $c;
+    $self->comment(\@cs);
+}
+
+sub map_comments {
+    my $self  = shift;
+    my $block = shift;
+    return map { $block->() } @{ $self->comment };
+}
+
+sub append_ping {
+    my $self = shift;
+    my $p  = shift or die;
+    my @ps = @{ $self->ping };
+    push @ps, $p;
+    $self->ping(\@ps);
+}
+
+sub map_pings {
+    my $self  = shift;
+    my $block = shift;
+    return map { $block->() } @{ $self->ping };
 }
 
 sub export {
