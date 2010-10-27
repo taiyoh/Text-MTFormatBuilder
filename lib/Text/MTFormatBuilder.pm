@@ -3,16 +3,16 @@ use strict;
 use warnings;
 use utf8;
 
-our $VERSION = '0.02';
+our $VERSION = '0.02.3';
 
 use Text::MTFormatBuilder::Entry;
 
 sub import {
     my $caller = caller;
-    return unless $_[0] ne '-Base';
+    return unless $_[0] ne '-Declare';
     no strict 'refs';
     no warnings 'redefine';
-    *{"${caller}::transaction"} = \&do_transaction;
+    *{"${caller}::blog_export"} = \&do_transaction;
     *{"${caller}::${_}"} = sub(&) { warn "DUMMY: $_"; } for (qw/metadata ping comment entry/);
     my @keys = qw/title url ip blog_name date body extended_body
                   excerpt author email primary_category category

@@ -4,10 +4,10 @@ use Test::More;
 
 BEGIN { use_ok "Text::MTFormatBuilder" };
 
-Text::MTFormatBuilder->import('-Base');
+Text::MTFormatBuilder->import('-Declare');
 
 do {
-    my $export = transaction {
+    my $export = blog_export {
         entry {
             metadata {
                 author 'author_test';
@@ -40,7 +40,7 @@ test_excerpt
 };
 
 do {
-    my $export = transaction {
+    my $export = blog_export {
         for (1 .. 2) {
             entry {
                 metadata {
