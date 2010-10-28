@@ -3,13 +3,13 @@ use strict;
 use warnings;
 use utf8;
 
-our $VERSION = '0.02.3';
+our $VERSION = '0.02.4';
 
 use Text::MTFormatBuilder::Entry;
 
 sub import {
     my $caller = caller;
-    return unless $_[0] ne '-Declare';
+    return unless !$_[1] ||  $_[1] ne '-Declare';
     no strict 'refs';
     no warnings 'redefine';
     *{"${caller}::blog_export"} = \&do_transaction;
