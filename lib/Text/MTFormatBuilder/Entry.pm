@@ -8,7 +8,7 @@ use Text::MTFormatBuilder::Ping;
 
 has delimiter => (is => 'ro', isa => 'Str', default => sub { "-----\n" } );
 
-my @keys = qw/body extended_body excerpt/;
+our @keys = qw/body extended_body excerpt/;
 has [@keys] => (
     is   => 'rw',
     isa  => 'Str',
@@ -100,4 +100,4 @@ sub add_ping {
     $self->append_ping(Text::MTFormatBuilder::Ping->new(@_));
 }
 
-__PACKAGE__->meta->make_immutable;
+1;
