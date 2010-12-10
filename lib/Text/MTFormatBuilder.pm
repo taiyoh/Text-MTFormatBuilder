@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use utf8;
 
-our $VERSION = '0.02.4';
+our $VERSION = '0.03';
 
 use Text::MTFormatBuilder::Entry;
 
