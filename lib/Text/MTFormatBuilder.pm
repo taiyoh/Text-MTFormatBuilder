@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use utf8;
 
-our $VERSION = '0.03';
+our $VERSION = '0.03.1';
 
 use Text::MTFormatBuilder::Entry;
 
@@ -74,7 +74,7 @@ do {
                     *{"${caller}::${attr}"} = sub($) { $metadata->$attr($_[0]) };
                 }
                 *{"${caller}::category"} = sub($) { $metadata->append_category($_[0]) };
-                $_[0]->();
+                $_[0]->($metadata);
                 $entry->metadata($metadata);
             };
 
@@ -89,7 +89,7 @@ do {
                     for my $attr (@keys) {
                         *{"${caller}::${attr}"} = sub($) { $obj->$attr($_[0]) };
                     }
-                    $_[0]->();
+                    $_[0]->($obj);
                     my $append = "append_${info_lc}";
                     $entry->$append($obj);
                 };
@@ -99,7 +99,7 @@ do {
             *{"${caller}::extended_body"} = sub($) { $entry->extended_body(@_) if ( caller 2 )[3] =~ /::do_entry$/; };
             *{"${caller}::excerpt"}       = sub($) { $entry->excerpt(@_) if ( caller 2 )[3] =~ /::do_entry$/; };
         };
-        $block->();
+        $block->($entry);
 
         $builder->append_entry($entry);
     }
