@@ -8,7 +8,7 @@ use Text::MTFormatBuilder::Ping;
 
 has delimiter => (is => 'ro', isa => 'Str', default => sub { "-----\n" } );
 
-our @keys = qw/body extended_body excerpt/;
+our @keys = qw/body extended_body excerpt keywords/;
 has [@keys] => (
     is   => 'rw',
     isa  => 'Str',
@@ -75,18 +75,14 @@ sub export {
     my $text = '';
     $text .= $self->metadata->export;
     $text .= join "", grep { $_ } map {
-        if ($self->$_) {
-            (my $u = $_) =~ s{_}{ }g;
-            $u = uc $u;
-            "${u}:\n" . $self->$_ . "\n"
-                . $self->delimiter;
-        }
-        else {
-            '';
-        }
+        (my $u = $_) =~ s{_}{ }g;
+        my $str = $self->$_ || '';
+        $u = uc $u;
+        "${u}:\n${str}\n" . $self->delimiter;
     } @keys;
     $text .= join '', $self->map_comments(sub { $_->export });
     $text .= join '', $self->map_pings(sub { $_->export });
+    $text .= "\n\n" .$self->delimiter;
     return $text;
 }
 

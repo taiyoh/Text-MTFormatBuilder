@@ -13,13 +13,13 @@ has [@booleans] => ( is => 'rw', isa  => 'Bool', default => 1 );
 has '+convert_breaks' => default => sub { 0 };
 has '+content' => default => sub { 1 };
 
-# no_entry
-
-has category => (
+has [qw/tags category/] => (
     is         => 'rw',
     isa        => 'ArrayRef[Str]',
     default    => sub { [] },
 );
+
+# no_entry
 
 sub append_category {
     my $self = shift;
@@ -34,6 +34,7 @@ sub map_categories {
     my $block = shift;
     return map { $block->() } @{ $self->category };
 }
+
 
 sub export {
     my $self = shift;
@@ -51,6 +52,10 @@ sub export {
     } @booleans;
     my @cats  = grep { $_ } $self->map_categories(sub { "CATEGORY: ${_}"; });
     $text .= join "\n", (@params1, @params2, @cats);
+    my @tags  = @{ $self->tags };
+    if (@tags) {
+        $text .= "\nTAGS: ".join(',', @tags);
+    }
     $text .= "\n" . $self->delimiter;
 
     return $text;

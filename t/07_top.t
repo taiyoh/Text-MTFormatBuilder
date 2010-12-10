@@ -28,6 +28,12 @@ test_extended_body
 EXCERPT:
 test_excerpt
 -----
+KEYWORDS:
+
+-----
+
+
+-----
 --------
 .
     is $export, $ref, "exported text";
@@ -73,6 +79,9 @@ test_extended_body
 EXCERPT:
 test_excerpt
 -----
+KEYWORDS:
+
+-----
 COMMENT:
 test
 -----
@@ -84,6 +93,9 @@ test
 -----
 PING:
 test2
+-----
+
+
 -----
 --------
 AUTHOR: author_test
@@ -101,6 +113,9 @@ test_extended_body
 EXCERPT:
 test_excerpt
 -----
+KEYWORDS:
+
+-----
 COMMENT:
 test
 -----
@@ -112,6 +127,9 @@ test
 -----
 PING:
 test2
+-----
+
+
 -----
 --------
 .
